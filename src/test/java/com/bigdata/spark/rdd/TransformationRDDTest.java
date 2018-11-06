@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * <b><code>TransformationRDDTest</code></b>
  * <p/>
- * Description:
+ * Description: DEMO - TransFormation RDD
  * <p/>
  * <b>Creation Time:</b> 2018/11/6 0:22.
  *
@@ -22,22 +22,55 @@ import java.util.List;
  */
 public class TransformationRDDTest {
 
+    /**
+     * The constant FILE_PATH.
+     *
+     * @since hui_project 1.0.0
+     */
     private static final String FILE_PATH = TransformationRDDTest.class.getClassLoader().getResource("demo.txt").toString();
 
+    /**
+     * The Spark conf.
+     *
+     * @since hui_project 1.0.0
+     */
     private SparkConf sparkConf;
+    /**
+     * The Spark context.
+     *
+     * @since hui_project 1.0.0
+     */
     private JavaSparkContext sparkContext;
+
+    /**
+     * Before.
+     *
+     * @throws Exception the exception
+     * @since hui_project 1.0.0
+     */
     @Before
     public void before() throws Exception {
         sparkConf = new SparkConf().setMaster("local[4]").setAppName("test");
         sparkContext = new JavaSparkContext(sparkConf);
     }
 
+    /**
+     * After.
+     *
+     * @throws Exception the exception
+     * @since hui_project 1.0.0
+     */
     @After
     public void after() throws Exception {
         sparkContext.close();
     }
 
 
+    /**
+     * Test map.
+     *
+     * @since hui_project 1.0.0
+     */
     @Test
     public void testMap(){
         JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
@@ -47,6 +80,11 @@ public class TransformationRDDTest {
         checkResult(collect);
     }
 
+    /**
+     * Test flat map.
+     *
+     * @since hui_project 1.0.0
+     */
     @Test
     public void testFlatMap(){
         JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
@@ -55,36 +93,50 @@ public class TransformationRDDTest {
         checkResult(collect);
     }
 
+    /**
+     * Test map to pair.
+     *
+     * @since hui_project 1.0.0
+     */
     @Test
     public void testMapToPair(){
         JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
         List<Tuple2<String, String>> collect = stringJavaRDD.mapToPair(x -> new Tuple2<>(x, "测试一下谢谢")).collect();
+
         checkResult(collect);
     }
 
     /**
-     * 读文件
-     * @throws Exception
+     * Test reduce by key.
+     *
+     * @since hui_project 1.0.0
      */
     @Test
-    public void testReadFile() throws Exception {
-
+    public void testReduceByKey(){
         JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
-
-        List<String> collect = stringJavaRDD.collect();
+        List<Tuple2<String, Integer>> collect = stringJavaRDD.map(x->Arrays.asList(x.split(",")).get(0))
+                .mapToPair(x -> new Tuple2<>(x, 1))
+                .reduceByKey((x, y) -> x + y).collect();
         checkResult(collect);
+
     }
 
     /**
-     * 外部集合转成RDD
+     * 测试groupByKey.
+     * groupByKey通过 key值分组，value是数组输出
+     *
+     * @since hui_project 1.0.0
      */
     @Test
-    public void testParallelize(){
-        List<String> stringList = Arrays.asList("1", "2", "3", "4", "5");
-        JavaRDD<String> parallelize = sparkContext.parallelize(stringList);
-        List<String> collect = parallelize.collect();
+    public void testGroupByKey(){
+        JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
+        List<Tuple2<String, Iterable<Integer>>> collect = stringJavaRDD.map(x -> Arrays.asList(x.split(",")).get(0))
+                .mapToPair(x -> new Tuple2<>(x, 1))
+                .groupByKey().collect();
         checkResult(collect);
     }
+
+
 
     /**
      * 并集
@@ -100,8 +152,17 @@ public class TransformationRDDTest {
         checkResult(collect);
     }
 
+    @Test
+    public void testMapPartitions(){
+        JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
+    }
 
-
+    /**
+     * Check result.
+     *
+     * @param collect the collect
+     * @since hui_project 1.0.0
+     */
     private void checkResult(List<?> collect){
         for (Object o : collect) {
             System.out.println(o.toString());

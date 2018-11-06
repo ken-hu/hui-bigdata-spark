@@ -7,19 +7,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * <b><code>ActionRDDTest</code></b>
+ * <b><code>PersistenceRDDTest</code></b>
  * <p/>
- * Description:DEMO - Action RDD
+ * Description: DEMO-持久化RDD
  * <p/>
- * <b>Creation Time:</b> 2018/11/6 0:27.
+ * <b>Creation Time:</b> 2018/11/6 22:02.
  *
  * @author Hu Weihui
  */
-public class ActionRDDTest {
-
+public class PersistenceRDDTest {
     private static final String FILE_PATH = TransformationRDDTest.class.getClassLoader().getResource("demo.txt").toString();
 
     private SparkConf sparkConf;
@@ -36,25 +36,28 @@ public class ActionRDDTest {
         sparkContext.close();
     }
 
+    /**
+     * 读文件
+     * @throws Exception
+     */
     @Test
-    public void testCollect() {
+    public void testReadFile() throws Exception {
+
         JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
+
         List<String> collect = stringJavaRDD.collect();
         checkResult(collect);
     }
 
+    /**
+     * 外部集合转成RDD
+     */
     @Test
-    public void testCount() {
-        JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
-        long count = stringJavaRDD.count();
-        System.out.println(count);
-    }
-
-    @Test
-    public void testFirst() {
-        JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
-        String first = stringJavaRDD.first();
-        System.out.println(first);
+    public void testParallelize(){
+        List<String> stringList = Arrays.asList("1", "2", "3", "4", "5");
+        JavaRDD<String> parallelize = sparkContext.parallelize(stringList);
+        List<String> collect = parallelize.collect();
+        checkResult(collect);
     }
 
 
@@ -63,5 +66,4 @@ public class ActionRDDTest {
             System.out.println(o.toString());
         }
     }
-
 }
