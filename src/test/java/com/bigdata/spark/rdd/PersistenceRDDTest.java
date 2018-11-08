@@ -38,6 +38,7 @@ public class PersistenceRDDTest {
 
     /**
      * 读文件
+     *
      * @throws Exception
      */
     @Test
@@ -53,7 +54,7 @@ public class PersistenceRDDTest {
      * 外部集合转成RDD
      */
     @Test
-    public void testParallelize(){
+    public void testParallelize() {
         List<String> stringList = Arrays.asList("1", "2", "3", "4", "5");
         JavaRDD<String> parallelize = sparkContext.parallelize(stringList);
         List<String> collect = parallelize.collect();
@@ -61,7 +62,7 @@ public class PersistenceRDDTest {
     }
 
 
-    private void checkResult(List<?> collect){
+    private void checkResult(List<?> collect) {
         for (Object o : collect) {
             System.out.println(o.toString());
         }
