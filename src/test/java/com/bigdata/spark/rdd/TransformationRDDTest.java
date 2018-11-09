@@ -10,6 +10,8 @@ import org.junit.Test;
 import scala.Tuple2;
 import scala.Tuple3;
 
+import java.beans.Transient;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -24,7 +26,7 @@ import java.util.List;
  *
  * @author Hu Weihui
  */
-public class TransformationRDDTest {
+public class TransformationRDDTest implements Serializable {
 
     /**
      * The constant FILE_PATH.
@@ -39,13 +41,13 @@ public class TransformationRDDTest {
      *
      * @since hui_project 1.0.0
      */
-    private SparkConf sparkConf;
+    private transient SparkConf sparkConf;
     /**
      * The Spark context.
      *
      * @since hui_project 1.0.0
      */
-    private JavaSparkContext sparkContext;
+    private transient JavaSparkContext sparkContext;
 
     /**
      * 初始化
@@ -56,6 +58,7 @@ public class TransformationRDDTest {
     @Before
     public void before() throws Exception {
         sparkConf = new SparkConf().setMaster("local[4]").setAppName("test");
+//        sparkConf.set("spark.serializer", "org.apache.spark.serializer.JavaSerializer");
         sparkContext = new JavaSparkContext(sparkConf);
     }
 
@@ -72,8 +75,8 @@ public class TransformationRDDTest {
 
 
     /**
-     * 元素转换.
-     *
+     * 元素转换 . 参数->你希望要的参数
+     * demo计算目的：获取地铁站名字
      * @since hui_project 1.0.0
      */
     @Test
@@ -84,8 +87,8 @@ public class TransformationRDDTest {
     }
 
     /**
-     * Test flat map.
-     *
+     * 元素转换. 参数->数组参数
+     * demo计算目的：获取地铁站信息切分后 获取数组信息1.出发站 2.终点站 3.经历站点数 4.距离
      * @since hui_project 1.0.0
      */
     @Test
@@ -97,8 +100,8 @@ public class TransformationRDDTest {
     }
 
     /**
-     * Test map to pair.
-     *
+     * 元素转换. 参数->pair参数 (key value).
+     * demo计算目的 : 没想到有什么东西,随便写写 只是把 地铁名字 -> key:地铁名字 value:1
      * @since hui_project 1.0.0
      */
     @Test
@@ -111,8 +114,8 @@ public class TransformationRDDTest {
     }
 
     /**
-     * Test reduce by key.
-     *
+     * 聚合.
+     * demo计算目的: 计算每个地铁站名字出现次数
      * @since hui_project 1.0.0
      */
     @Test
@@ -127,9 +130,8 @@ public class TransformationRDDTest {
     }
 
     /**
-     * 测试groupByKey.
-     * groupByKey通过 key值分组，value是数组输出
-     *
+     * 分组. groupByKey通过 key值分组，value是数组输出
+     * demo逻辑计算：进站->进站[出站A,出站B，....，出站N]
      * @since hui_project 1.0.0
      */
     @Test
@@ -142,8 +144,8 @@ public class TransformationRDDTest {
     }
 
     /**
-     * Test union and filter.
-     *
+     * 集合并集.
+     * demo计算目的：找出所有进站是广南和天河客运站的信息
      * @since hui_project 1.0.0
      */
     @Test
@@ -157,41 +159,71 @@ public class TransformationRDDTest {
     }
 
     /**
-     * Test map partitions.
-     *
+     * 元素转换,在每一个分区内部进行元素转换.
+     * demo计算目的：算平方。（单元测试比较难看出来分区作用）
      * @since hui_project 1.0.0
      */
     @Test
     public void testMapPartitions() {
-        JavaRDD<Integer> parallelize = sparkContext.parallelize(Arrays.asList(1, 2, 3));
-        JavaRDD<Integer> rdd = parallelize.mapPartitions(x -> getSquare(x));
+        JavaRDD<Integer> parallelize = sparkContext.parallelize(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 3);
+        JavaRDD<Tuple2<Integer, Integer>> rdd = parallelize
+                .mapPartitions(x -> getSquare(x));
         checkResult(rdd.collect());
 
     }
 
-    private Iterator<Integer> getSquare(Iterator<Integer> it){
-        ArrayList<Integer> results = new ArrayList<>();
-        while(it.hasNext()){
+    /**
+     * Gets square.
+     *
+     * @param it the it
+     * @return the square
+     * @since hui_project 1.0.0
+     */
+    @Transient
+    private Iterator<Tuple2<Integer, Integer>> getSquare(Iterator<Integer> it) {
+        ArrayList<Tuple2<Integer, Integer>> results = new ArrayList<>();
+        while (it.hasNext()) {
             Integer next = it.next();
-            results.add(next * next);
+            results.add(new Tuple2<>(next, next * next));
         }
         return results.iterator();
     }
 
     /**
-     * Test map partitions with split.
+     * 元素转换,在每一个分区内部进行元素转换.
+     * demo计算目的：算平方。（参数1是分区的索引）
      *
      * @since hui_project 1.0.0
      */
     @Test
-    public void testMapPartitionsWithSplit() {
+    public void testMapPartitionsWithIndex(){
+        JavaRDD<Integer> parallelize = sparkContext.parallelize(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), 3);
+        JavaRDD<Tuple2<Integer, Integer>> rdd = parallelize.mapPartitionsWithIndex((x, y) -> getSquareWithIndex(x, y), false);
+        checkResult(rdd.collect());
+    }
 
+    /**
+     * Get square with index iterator.
+     *
+     * @param partIndex the part index
+     * @param it        the it
+     * @return the iterator
+     * @since hui_project 1.0.0
+     */
+    @Transient
+    public Iterator<Tuple2<Integer, Integer>> getSquareWithIndex(Integer partIndex, Iterator<Integer> it){
+        ArrayList<Tuple2<Integer, Integer>> results = new ArrayList<>();
+        while (it.hasNext()) {
+            Integer next = it.next();
+            results.add(new Tuple2<>(partIndex, next * next));
+        }
+        return results.iterator();
     }
 
 
     /**
-     * Test sample.
-     *
+     * 元素采样.
+     * true 元素可以多次采样
      * @since hui_project 1.0.0
      */
     @Test
@@ -204,8 +236,8 @@ public class TransformationRDDTest {
     }
 
     /**
-     * Test sample 2.
-     *
+     * 元素采样.
+     * false 元素不可以多次采样
      * @since hui_project 1.0.0
      */
     @Test
@@ -216,7 +248,7 @@ public class TransformationRDDTest {
     }
 
     /**
-     * 去重.
+     * 集合去重.
      *
      * @since hui_project 1.0.0
      */
@@ -231,8 +263,8 @@ public class TransformationRDDTest {
     }
 
     /**
+     * 排序
      * false为倒序 true顺序
-     *
      * @since hui_project 1.0.0
      */
     @Test
@@ -248,23 +280,25 @@ public class TransformationRDDTest {
     }
 
     /**
-     * Test join.
-     *
+     * 集合关联. 合并相同key的value
+     * demo计算目的：今年和去年都获奖的同学，获奖项的科目都有哪些
      * @since hui_project 1.0.0
      */
     @Test
     public void testJoin() {
+        //今年同学获奖的科目
         JavaPairRDD<Object, Object> rdd1 = sparkContext.parallelize(Arrays.asList(
                 new Tuple2("xiaoming", "语文")
                 , new Tuple2("xiaoming", "数学")
                 , new Tuple2("lihua", "数学")
-                , new Tuple2("xiaofeng", "艺术")))
+                , new Tuple2("xiaofeng", "艺术")
+                , new Tuple2("test", "艺术")))
                 .mapToPair(x -> new Tuple2<>(x._1, x._2));
+        //去年同学获奖的科目
         JavaPairRDD<Object, Object> rdd2 = sparkContext.parallelize(Arrays.asList(
                 new Tuple2("xiaoming", "艺术")
                 , new Tuple2("lihua", "艺术")
-                , new Tuple2("xiaofeng", "语文")
-                , new Tuple2("test", "艺术")))
+                , new Tuple2("xiaofeng", "语文")))
                 .mapToPair(x -> new Tuple2<>(x._1, x._2));
         JavaPairRDD<Object, Tuple2<Object, Object>> join = rdd1.join(rdd2);
         checkResult(join.collect());
@@ -272,20 +306,23 @@ public class TransformationRDDTest {
 
     /**
      * Test co group.
-     *
+     * demo计算目的: 以成绩分组 同学([成绩优秀学科],[成绩中等学科],[成绩差劲学科])
      * @since hui_project 1.0.0
      */
     @Test
     public void testCoGroup() {
+        //成绩优秀的学生+科目
         JavaRDD<Tuple2<String, String>> scoreDetails1 = sparkContext.parallelize(Arrays.asList(
                 new Tuple2("xiaoming", "语文")
                 , new Tuple2("xiaoming", "数学")
                 , new Tuple2("lihua", "数学")
                 , new Tuple2("xiaofeng", "艺术")));
+        //成绩中等的学生+科目
         JavaRDD<Tuple2<String, String>> scoreDetails2 = sparkContext.parallelize(Arrays.asList(
                 new Tuple2("xiaoming", "艺术")
                 , new Tuple2("lihua", "艺术")
                 , new Tuple2("xiaofeng", "语文")));
+        //成绩差的学生+科目
         JavaRDD<Tuple2<String, String>> scoreDetails3 = sparkContext.parallelize(Arrays.asList(
                 new Tuple2("xiaoming", "英语")
                 , new Tuple2("lihua", "英语")
@@ -304,7 +341,7 @@ public class TransformationRDDTest {
 
     /**
      * 笛卡尔积.
-     *
+     * demo计算目的：超人VS怪兽所有组合
      * @since hui_project 1.0.0
      */
     @Test

@@ -6,6 +6,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import scala.Serializable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,11 +20,11 @@ import java.util.List;
  *
  * @author Hu Weihui
  */
-public class PersistenceRDDTest {
+public class PersistenceRDDTest implements Serializable {
     private static final String FILE_PATH = TransformationRDDTest.class.getClassLoader().getResource("demo.txt").toString();
 
-    private SparkConf sparkConf;
-    private JavaSparkContext sparkContext;
+    private transient SparkConf sparkConf;
+    private transient JavaSparkContext sparkContext;
 
     @Before
     public void before() throws Exception {
