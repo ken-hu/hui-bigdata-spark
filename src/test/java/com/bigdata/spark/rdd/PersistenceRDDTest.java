@@ -21,7 +21,8 @@ import java.util.List;
  * @author Hu Weihui
  */
 public class PersistenceRDDTest implements Serializable {
-    private static final String FILE_PATH = TransformationRDDTest.class.getClassLoader().getResource("demo.txt").toString();
+    private static final String FILE_PATH = PersistenceRDDTest.class.getClassLoader().getResource("demo.txt").toString();
+
 
     private transient SparkConf sparkConf;
     private transient JavaSparkContext sparkContext;
@@ -36,6 +37,7 @@ public class PersistenceRDDTest implements Serializable {
     public void after() throws Exception {
         sparkContext.close();
     }
+
 
     /**
      * 读文件

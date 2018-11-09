@@ -12,6 +12,7 @@ import scala.Tuple2;
 import java.beans.Transient;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <b><code>ActionRDDTest</code></b>
@@ -30,7 +31,11 @@ public class ActionRDDTest implements Serializable {
      * @since hui_project 1.0.0
      */
     private static final String FILE_PATH
-            = TransformationRDDTest.class.getClassLoader().getResource("demo.txt").toString();
+            = ActionRDDTest.class.getClassLoader().getResource("demo.txt").toString();
+
+    private static final String OUTPUT_TXT_PATH
+            = "D:/test/test/result";
+
 
     /**
      * The Spark conf.
@@ -66,6 +71,12 @@ public class ActionRDDTest implements Serializable {
     @After
     public void after() throws Exception {
         sparkContext.close();
+    }
+
+    @Test
+    public void saveAsTxtFile() throws Exception{
+        JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
+        stringJavaRDD.saveAsTextFile(OUTPUT_TXT_PATH);
     }
 
     /**
@@ -148,7 +159,35 @@ public class ActionRDDTest implements Serializable {
 
     }
 
+    /**
+     * 取Key对应元素数量
+     *
+     * @since hui_project 1.0.0
+     */
+    @Test
+    public void testCountByKey(){
+        JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
+        Map<String, Long> stringLongMap = stringJavaRDD.map(x -> x.split(",")[0])
+                .mapToPair(x -> new Tuple2<>(x, 1))
+                .countByKey();
 
+        for (String key : stringLongMap.keySet()) {
+            System.out.println(key + " + " + stringLongMap.get(key) );
+        }
+    }
+
+    /**
+     * 循环
+     *
+     * @since hui_project 1.0.0
+     */
+    @Test
+    public void testForEach(){
+        JavaRDD<String> stringJavaRDD = sparkContext.textFile(FILE_PATH);
+        stringJavaRDD.foreach(x->{
+            System.out.println(x);
+        });
+    }
     /**
      * 打印测试.
      *
