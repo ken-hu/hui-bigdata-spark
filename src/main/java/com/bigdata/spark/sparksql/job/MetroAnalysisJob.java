@@ -2,9 +2,8 @@ package com.bigdata.spark.sparksql.job;
 
 import com.bigdata.spark.common.SparkJob;
 import com.bigdata.spark.common.util.SparkJobUtil;
-import com.bigdata.spark.sparksql.conf.JdbcConfig;
+import com.bigdata.spark.sparksql.conf.MySQLJdbcConfig;
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -14,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <b><code>MetroMaxDistanceJob</code></b>
+ * <b><code>MetroAnalysisJob</code></b>
  * <p/>
  * Description:
  * <p/>
@@ -22,19 +21,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author Hu Weihui
  */
-public class MetroMaxDistanceJob extends SparkJob {
+public class MetroAnalysisJob extends SparkJob {
+
+    private static Logger LOGGER = LoggerFactory.getLogger(MetroAnalysisJob.class);
 
     private static final String INPUT_FILE_PATH
-            = MetroMaxDistanceJob.class.getClassLoader().getResource("test.json").toString();
+            = MetroAnalysisJob.class.getClassLoader().getResource("test.json").toString();
 
     private static final String OUTPUT_FILE_PATH
             = "D:/test/test";
 
-    private static final String TABLE = "hui_metro_test";
-
-    private static Logger LOGGER = LoggerFactory.getLogger(MetroMaxDistanceJob.class);
-
-    private static final String SQL = "select * from hui_metro_test";
+    private static final String SQL = "select * from hui_metro_testjson";
 
     public static void main(String[] args) {
         SparkConf sparkConf = new SparkConf()
@@ -43,18 +40,24 @@ public class MetroMaxDistanceJob extends SparkJob {
 
         JavaSparkContext sparkContext = new JavaSparkContext(sparkConf);
 
-        MetroMaxDistanceJob metroMaxDistanceJob = new MetroMaxDistanceJob();
+        MetroAnalysisJob metroAnalysisJob = new MetroAnalysisJob();
 
-        metroMaxDistanceJob.execute(sparkContext,args);
+        metroAnalysisJob.execute(sparkContext, args);
     }
 
     @Override
     public void execute(JavaSparkContext sparkContext, String[] args) {
         super.execute(sparkContext, args);
-            deal(sparkContext,INPUT_FILE_PATH,OUTPUT_FILE_PATH);
+        deal(sparkContext, INPUT_FILE_PATH, OUTPUT_FILE_PATH);
     }
 
-    public void deal(JavaSparkContext sparkContext, String inPutPath, String outPutPath){
+    /**
+     * 数据逻辑处理
+     * @param sparkContext
+     * @param inPutPath
+     * @param outPutPath
+     */
+    private void deal(JavaSparkContext sparkContext, String inPutPath, String outPutPath) {
         SparkJobUtil.checkFileExists(inPutPath);
 
         SQLContext sqlContext = new SQLContext(sparkContext);
@@ -62,12 +65,12 @@ public class MetroMaxDistanceJob extends SparkJob {
 
         //创建快照临时表
         Dataset<Row> dataset = sqlContext.read().json(inPutPath);
-        dataset.registerTempTable("hui_metro_test");
+        dataset.registerTempTable("hui_metro_testjson");
         dataset.show(10);
 
         Dataset<Row> resultFrame = sqlContext.sql(SQL);
 
-        if (resultFrame.count()>0){
+        if (resultFrame.count() > 0) {
             resultFrame.repartition(3).write()
                     .mode(SaveMode.Append).json(outPutPath);
         }
@@ -75,12 +78,10 @@ public class MetroMaxDistanceJob extends SparkJob {
         resultFrame.show(10);
 
         //结果写入数据库
-        JdbcConfig jdbcConfig = new JdbcConfig();
+        MySQLJdbcConfig jdbcConfig = new MySQLJdbcConfig();
         jdbcConfig.init();
         resultFrame.write().mode("append")
-                .jdbc(jdbcConfig.getUrl(),TABLE,jdbcConfig.getConnectionProperties());
+                .jdbc(jdbcConfig.getUrl(), "hui_metro_test", jdbcConfig.getConnectionProperties());
     }
-
-
 
 }

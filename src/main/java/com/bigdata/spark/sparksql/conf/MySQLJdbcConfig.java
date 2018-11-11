@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * <b><code>JdbcConfig</code></b>
+ * <b><code>MySQLJdbcConfig</code></b>
  * <p/>
  * Description:
  * <p/>
@@ -16,8 +16,8 @@ import java.util.Properties;
  *
  * @author Hu Weihui
  */
-public class JdbcConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcConfig.class);
+public class MySQLJdbcConfig {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySQLJdbcConfig.class);
 
     private String table;
 
