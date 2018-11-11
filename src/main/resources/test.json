@@ -1,0 +1,12 @@
+
+{ "from_station":"西朗","to_station":"坑口","count":"1","distance":"1.6" },
+{ "from_station":"西朗","to_station":"花地湾","count":"2","distance":"2.5" },
+{ "from_station":"西朗","to_station":"芳村","count":"3","distance":"3.8" },
+{ "from_station":"西朗","to_station":"黄沙","count":"4","distance":"5.2" },
+{ "from_station":"西朗","to_station":"长寿路","count":"5","distance":"6.1" },
+{ "from_station":"西朗","to_station":"陈家祠","count":"6","distance":"7.3" },
+{ "from_station":"西朗","to_station":"西门口","count":"7","distance":"8.3" },
+{ "from_station":"西朗","to_station":"公园前","count":"8","distance":"9.1" },
+{ "from_station":"西朗","to_station":"农讲所","count":"9","distance":"10.3" },
+{ "from_station":"西朗","to_station":"烈士陵园","count":"10","distance":"11.3" }
+
