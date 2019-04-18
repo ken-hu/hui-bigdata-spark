@@ -1,0 +1,12 @@
+#应用名
+spring:
+  application:
+    name: hui-bigdata-spark
+#端口号
+server:
+  port: 8081
+#sparkconfig配置
+spark:
+  app-name: hui
+  master: local[4]
+  spark-home: 1
