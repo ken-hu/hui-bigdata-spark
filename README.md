@@ -7,10 +7,10 @@
 
 # 项目博客相关
 ```
-【Spark】Springboot搭建spark脚手架 https://blog.csdn.net/HuHui_/article/details/89391509
-【Spark】SparkSql分析结果写入Mysql https://blog.csdn.net/HuHui_/article/details/83964233
-【Spark】SparkRDD开发手册（JavaAPI函数式编程）https://blog.csdn.net/HuHui_/article/details/83905308
-【Spark】Spark运行报错Task not serializable https://blog.csdn.net/HuHui_/article/details/83905302
+【Spark】Springboot搭建spark脚手架： <https://blog.csdn.net/HuHui_/article/details/89391509>
+【Spark】SparkSql分析结果写入Mysql：<https://blog.csdn.net/HuHui_/article/details/83964233>
+【Spark】SparkRDD开发手册（JavaAPI函数式编程）：<https://blog.csdn.net/HuHui_/article/details/83905308>
+【Spark】Spark运行报错Task not serializable： <https://blog.csdn.net/HuHui_/article/details/83905302>
 ```
 # 脚手架相关
 ## Note
