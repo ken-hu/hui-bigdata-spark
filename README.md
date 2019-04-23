@@ -1,5 +1,6 @@
 
 # hui-bigdata-spark
+# 注意：请根据你的CDH等spark版本做相应的版本调整
 
 # 项目介绍
 1. spark相关的一些demo
