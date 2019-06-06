@@ -1,5 +1,11 @@
 
 # hui-bigdata-spark
+
+# 项目迁移
+2019-06-05 项目全部迁移到码云gitee  
+github不维护  
+项目地址： https://gitee.com/huhui_/hui-bigdata-spark  
+
 # 注意：请根据你的CDH等spark版本做相应的版本调整
 
 # 项目介绍
