@@ -2,21 +2,19 @@
 # hui-bigdata-spark
 spark集成springboot脚手架项目
 
-# 注意：请根据你的CDH等spark版本做相应的版本调整
+## 注意：请根据你的CDH等spark版本做相应的版本调整
 
-# 项目介绍
+## 项目介绍
 1. spark相关的一些demo
 2. springboot+spark的脚手架开发（开箱即用）
 
-# blog
+## blog
  1. [spark-rdd-JavaAPI手册](https://ithuhui.com/2018/11/10/spark-rdd-common-java-api/)
  2. [spark-sql-保存结果集到mysql](https://ithuhui.com/2018/11/11/spark-sql-save-to-mysql/)
  3. [spark Task no serializable 异常解决](https://ithuhui.com/2018/11/10/spark-task-no-serializable/)
  4. [spark-springboot-脚手架开发](https://ithuhui.com/2019/04/19/spark-springboot-start/)
  
-# 脚手架相关
-## Note
-
+## 脚手架相关
 - 项目结构：  
 
 ├─hui-bigdata-spark-common（公共组件）  
@@ -61,7 +59,7 @@ spark集成springboot脚手架项目
   3. demo是原生跑spark的一些例子
   
   
-# Author
+## Author
 ```
  作者：HuHui
  转载：欢迎一起讨论web和大数据问题,转载请注明作者和原文链接，感谢
